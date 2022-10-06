@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1006-module-test03在html匯入js</title>
+</head>
+
+<body>
+    <div id="info"></div>
+    <script type="module">
+        //要引入.js檔，一定要加type="module"
+        //module已轉成.mjs所以引入的副檔名不用再加.m
+        import person from './person.js'
+        const p1 = new person('Amy', 25);
+        p1.gender = 'male';
+
+        info.innerText = p1.toString();
+
+    </script>
+    <script type="module">
+        // console.log(p1.name); // 出錯
+        //module標籤為獨立，寫兩段script無法執行
+    </script>
+
+</body>
+
+</html>

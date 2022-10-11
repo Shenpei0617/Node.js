@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1011-hashChange</title>
+</head>
+<style>
+    .box{
+        width: 500px;
+        height: 1000px;
+        background-color: lightcoral;
+    }
+</style>
+<body>
+    <div style="position: fixed; top:0;">
+        <a href="#aaa">box1</a>
+        <a href="#bbb">box2</a>
+        <a href="#ccc">box3</a>
+    </div>
+    <div class="box" id="aaa"></div>
+    <div class="box" id="bbb" style="background-color:lightgreen ;"></div>
+    <div class="box" id="ccc" style="background-color:lightpink ;"></div>
+
+    <script>
+        window.addEventListener('hashchange',function(){
+            console.log(location.hash);
+        })
+    </script>
+</body>
+</html>

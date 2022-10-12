@@ -10,10 +10,20 @@ const app = express();
 app.set('view engine', 'ejs');
 //設定EJS
 
+//Multer檔案上傳
+// const multer =require('multer');
+// const upload = multer({dest:'tmp_uploads/'});
+const fs = require('fs').promises;
+
+//uploads-img引入
+const uploads = require(__dirname + '/modules/upload-img');
+
 app.use(express.static(__dirname + '/public'));
 app.use(express.static('node_modules/bootstrap/dist'));
 app.use(express.urlencoded({extended:false}));
 app.use(express.json());
+
+
 
 
 //設定路由
@@ -55,6 +65,27 @@ app.get('/try-post-form',(req,res)=>{
 })
 app.post('/try-post-form',(req,res)=>{
     res.render('try-post-form',req.body);
+})
+
+//Multer
+app.post('/try-uploads',uploads.single('avatar'),async (req,res)=>{
+    //uuidv4上傳
+    res.json(req.file);
+
+
+    /*Multer上傳
+    if (req.file && req.file.originalname){
+        await fs.rename(req.file.path,`public/img/${ req.file.originalname}`);
+        res.json(req.file);
+    }else{
+        res.json({msg: '上傳失敗'})
+    }
+    */
+})
+app.post('/try-uploads2',uploads.array('photos'),async (req,res)=>{
+    res.json(req.files);
+    //上傳多個檔案
+
 })
 
 

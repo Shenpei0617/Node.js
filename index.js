@@ -20,10 +20,13 @@ const uploads = require(__dirname + '/modules/upload-img');
 
 app.use(express.static(__dirname + '/public'));
 app.use(express.static('node_modules/bootstrap/dist'));
-app.use(express.urlencoded({extended:false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-
+//路徑模組化
+app.use('/abc',require(__dirname+'/routes/admin2'));
+// /abc先給相對路徑，網址列上就要打http://localhost:3001/abc/bb/aaa/50
+//若沒給相對路徑，就是在根目錄
 
 
 //設定路由
@@ -38,37 +41,54 @@ app.get('/', function (req, res) {
 app.get('/abc', function (req, res) {
     res.send('abc');
 });
-app.get('/json-test',(req,res)=>{
-    res.json({name:'Amy',age:30});
+app.get('/json-test', (req, res) => {
+    res.json({ name: 'Amy', age: 30 });
     //Headers>Content-Type: application/json; charset=utf-8
-    
+
     //res.send({name:'Amy',age:30});
     // res.json和res.send不要重複設定
 
 })
-app.get('/send-test',(req,res)=>{
-   const data = require(__dirname + '/data/sales');
+app.get('/send-test', (req, res) => {
+    const data = require(__dirname + '/data/sales');
     res.json(data);
 })
-app.get('/sales-json',(req,res)=>{
-   const sales = require(__dirname + '/data/sales');
-   res.render('sales-json',{sales});
+app.get('/sales-json', (req, res) => {
+    const sales = require(__dirname + '/data/sales');
+    res.render('sales-json', { sales });
 
 })
+
+//使用變數設定路由
+app.get('/my-params1/:action?/:id?', async (req, res) => {
+    res.json(req.params);
+});
+
+//使用regular expression設定路由
+app.get(/^\/m\/09\d{2}-?\d{3}-?\d{3}$/i, (req, res) => {
+    let u = req.url.slice(3);
+    u = u.split('?')[0]; // 用?去掉 query string
+    u = u.split('-').join(''); //加入空字串
+    res.json({ mobile: u });
+});
+//  \/跳脫字元
+
 // const urlencodedParser = express.urlencoded({extended:false});
 //放到前面設成middleware， 把urlencodedParser,
-app.post('/try-post',(req,res)=>{
+
+
+app.post('/try-post', (req, res) => {
     res.json(req.body);
 })
-app.get('/try-post-form',(req,res)=>{
+app.get('/try-post-form', (req, res) => {
     res.render('try-post-form');
 })
-app.post('/try-post-form',(req,res)=>{
-    res.render('try-post-form',req.body);
+app.post('/try-post-form', (req, res) => {
+    res.render('try-post-form', req.body);
 })
 
 //Multer
-app.post('/try-uploads',uploads.single('avatar'),async (req,res)=>{
+app.post('/try-uploads', uploads.single('avatar'), async (req, res) => {
     //uuidv4上傳
     res.json(req.file);
 
@@ -82,7 +102,7 @@ app.post('/try-uploads',uploads.single('avatar'),async (req,res)=>{
     }
     */
 })
-app.post('/try-uploads2',uploads.array('photos'),async (req,res)=>{
+app.post('/try-uploads2', uploads.array('photos'), async (req, res) => {
     res.json(req.files);
     //上傳多個檔案
 

@@ -1,10 +1,17 @@
 require('dotenv').config();
 //1011新增
 //dotenv呼叫.env
+// ----1014session
+const session = require('express-session');
+const moment = require('moment-timezone');
+const MysqlStore = require('express-mysql-session')(session);
+const db = require(__dirname + '/modules/db_connect2');
+const sessionStore = new MysqlStore({}, db);
 
 //npm i express 安裝express
 //引入express
 const express = require('express');
+const db_connect2 = require('./modules/db_connect2');
 //建立web sever物件
 const app = express();
 app.set('view engine', 'ejs');
@@ -23,11 +30,100 @@ app.use(express.static('node_modules/bootstrap/dist'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-//路徑模組化
-app.use('/abc',require(__dirname+'/routes/admin2'));
+
+app.use(session({
+    saveUninitialized: false,
+    //在初始化時要不要儲存
+    resave: false,
+    secret: "aaaBBBccc12345",
+    //隨便的亂數
+    store: sessionStore,
+    cookie: {
+        maxAge: 1_100_000,
+    }
+    // "expires": "2022-10-14T03:01:01.955Z",(結尾Z，格林標準時間)
+}))
+
+
+
+//--------------------
+//1013路徑模組化
+app.use('/abc', require(__dirname + '/routes/admin2'));
 // /abc先給相對路徑，網址列上就要打http://localhost:3001/abc/bb/aaa/50
 //若沒給相對路徑，就是在根目錄
 
+//1014
+const myMiddle = (req, res, next) => {
+    res.locals = { ...res.locals, pei: '早安' };
+    res.locals.derrr = 1014;
+    // res.myPersonal = {...res.locals, shinder:'哈囉'}; // 不建議這樣設定
+    next();
+};
+app.get('/try-middle', [myMiddle], (req, res) => {
+    res.json(res.locals);
+})
+
+// -----1014session
+app.get('/try-session', (req, res) => {
+    req.session.aaa ||= 0; //預設
+    req.session.aaa++;
+    res.json(req.session);
+});
+
+//時間格式
+app.get('/try-date', (req, res) => {
+    const now = new Date;
+    const m = moment();
+
+    res.send({
+        t1: now,
+        t2: now.toString(),
+        t3: now.toDateString(),
+        t4: now.toLocaleString(),
+        m: m.format('YYYY-MM-DD HH:mm:ss'),
+    })
+});
+
+app.get('/try-moment', (req, res) => {
+    const fm = 'YYYY-MM-DD HH:mm:ss';
+    const m = moment('06/10/22', 'DD/MM/YY');
+    res.json({
+        m,
+        m1: m.format(fm),
+        m2: m.tz('Asia/Tokyo').format(fm)
+    })
+})
+//讀取資料庫
+app.get('/try-db', async (req, res) => {
+    const [rows] = await db.query("SELECT * FROM address_book LIMIT 5");
+    res.json(rows);
+})
+//新增資料
+app.get('/try-db-add', async (req, res) => {
+    const name ='愛美';
+    const email ='Amy@gmail.com';
+    const mobile ='0912000000';
+    const birthday ='2022-10-14';
+    const address ='新北市';
+    const sql = "INSERT INTO `address_book`(`name`,  `email`,`mobile`, `birthday`, `address`, `created_at`) VALUES (?,?,?,?,?,NOW())"
+    const [result] = await db.query(sql, [name, email, mobile, birthday, address]);
+    res.json(result);
+})
+//用SET設定，但是新增的欄位必須一對一
+app.get('/try-db-add2', async (req, res) => {
+    const name ='恰恰';
+    const email ='chacha@gmail.com';
+    const mobile ='0977777777';
+    const birthday ='2022-07-07';
+    const address ='台北市';
+    const sql = "INSERT INTO `address_book` SET ?"
+    const [result] = await db.query(sql, [{name, email, mobile, birthday, address, created_at: new Date()}]);
+    res.json(result);
+})
+app.use('/ab',  require(__dirname + '/routes/address-book') );
+
+
+// -------------
 
 //設定路由
 //注意路由寫的順序，express的路由不會檢查有沒有重複，所以設在前面的會先讀取執行

@@ -17,7 +17,7 @@
         <div class="row">
             <div class="col-lg-8"></div>
             <div class="col-lg-4">
-                <form class="d-flex" role="search">
+                <form class="d-flex" role="search" onsubmit="doSearch(event)">
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
                         name="search">
                     <button class="btn btn-outline-success" type="submit">Search</button>
@@ -33,16 +33,16 @@
             <div class="col table-container">
             </div>
         </div>
-<script src="/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/dayjs.min.js"></script>
+        <script src="/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/dayjs.min.js"></script>
         <script>
             const t_container = document.querySelector('.table-container');
             const p_container = document.querySelector('.pagi-container');
 
             function renderPagi({ page, totalPages }) {
                 return `
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
                             <li class="page-item disabled">
                                 <a class="page-link" href="#"> <i
                                         class="fa-solid fa-circle-arrow-left"></i>
@@ -56,17 +56,17 @@
                             </li>`
                 }).join('')
                     }
-                        <li class="page-item disabled">
+                        <li class="page-item ">
                          <a class="page-link" href="#">
                          <i class="fa-solid fa-circle-arrow-right"></i></a>
                              </li>
-            </ul>
-       </nav>`;
+                </ul>
+            </nav>`;
 
             }
 
 
-            function renderTable({rows}) {
+            function renderTable({ rows }) {
                 return ` <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
@@ -86,7 +86,7 @@
                                 <td>${el.name}</td>
                                 <td>${el.mobile}</td>
                                 <td>${el.email}</td>
-                                <td>${el.birthday}</td>
+                                <td>${dayjs(el.birthday).format('YYYY-MM-DD')}</td>
                                 <td>${el.address}</td>
                             </tr>
                             `;
@@ -95,15 +95,38 @@
 
                 </table>`;
             }
-            fetch('/ab/api').then(r => r.json())
+            const search = location.search;
+            fetch('/ab/api' + search)
+                .then(r => r.json())
                 .then(result => {
                     console.log(result);
                     p_container.innerHTML = renderPagi(result);
                     t_container.innerHTML = renderTable(result);
                 })
 
-
             // document.querySelector('.table-container').innerHTML = renderTable();
+
+            function doSearch(event) {
+                event.preventDefault();//不讓表單送出
+                const f = event.currentTarget;
+                console.log({ search: f.search.value });
+                const usp = new URLSearchParams({ search: f.search.value });
+                history.pushState('', '', '?' + usp.toString());
+                console.log(location.search);
+                //history，windows內建的物件
+
+                fetch('/ab/api' + location.search)
+                    .then(r => r.json())
+                    .then(result => {
+                        console.log(result);
+                        p_container.innerHTML = renderPagi(result);
+                        t_container.innerHTML = renderTable(result);
+                    })
+
+
+            }
+
+
         </script>
 
 

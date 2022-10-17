@@ -7,6 +7,7 @@ const moment = require('moment-timezone');
 const MysqlStore = require('express-mysql-session')(session);
 const db = require(__dirname + '/modules/db_connect2');
 const sessionStore = new MysqlStore({}, db);
+const cors = require('cors');
 
 //npm i express 安裝express
 //引入express
@@ -24,6 +25,8 @@ const fs = require('fs').promises;
 
 //uploads-img引入
 const uploads = require(__dirname + '/modules/upload-img');
+
+app.use(cors());
 
 app.use(express.static(__dirname + '/public'));
 app.use(express.static('node_modules/bootstrap/dist'));
@@ -43,7 +46,14 @@ app.use(session({
     }
     // "expires": "2022-10-14T03:01:01.955Z",(結尾Z，格林標準時間)
 }))
-
+// /------------
+// 1017CRUD功課
+app.use((req, res, next) => {
+    //自己定義template helper functions
+    res.locals.toDateString = (d) => moment(d).format('YYYY-MM-DD');
+    res.locals.toDatetimeString = (d) => moment(d).format('YYYY-MM-DD HH:mm:ss');
+    next();
+})
 
 
 //--------------------
@@ -51,6 +61,8 @@ app.use(session({
 app.use('/abc', require(__dirname + '/routes/admin2'));
 // /abc先給相對路徑，網址列上就要打http://localhost:3001/abc/bb/aaa/50
 //若沒給相對路徑，就是在根目錄
+
+
 
 //1014
 const myMiddle = (req, res, next) => {
@@ -100,27 +112,27 @@ app.get('/try-db', async (req, res) => {
 })
 //新增資料
 app.get('/try-db-add', async (req, res) => {
-    const name ='愛美';
-    const email ='Amy@gmail.com';
-    const mobile ='0912000000';
-    const birthday ='2022-10-14';
-    const address ='新北市';
+    const name = '愛美';
+    const email = 'Amy@gmail.com';
+    const mobile = '0912000000';
+    const birthday = '2022-10-14';
+    const address = '新北市';
     const sql = "INSERT INTO `address_book`(`name`,  `email`,`mobile`, `birthday`, `address`, `created_at`) VALUES (?,?,?,?,?,NOW())"
     const [result] = await db.query(sql, [name, email, mobile, birthday, address]);
     res.json(result);
 })
 //用SET設定，但是新增的欄位必須一對一
 app.get('/try-db-add2', async (req, res) => {
-    const name ='恰恰';
-    const email ='chacha@gmail.com';
-    const mobile ='0977777777';
-    const birthday ='2022-07-07';
-    const address ='台北市';
+    const name = '恰恰';
+    const email = 'chacha@gmail.com';
+    const mobile = '0977777777';
+    const birthday = '2022-07-07';
+    const address = '台北市';
     const sql = "INSERT INTO `address_book` SET ?"
-    const [result] = await db.query(sql, [{name, email, mobile, birthday, address, created_at: new Date()}]);
+    const [result] = await db.query(sql, [{ name, email, mobile, birthday, address, created_at: new Date() }]);
     res.json(result);
 })
-app.use('/ab',  require(__dirname + '/routes/address-book') );
+app.use('/ab', require(__dirname + '/routes/address-book'));
 
 
 // -------------

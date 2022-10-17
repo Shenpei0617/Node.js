@@ -45,8 +45,9 @@ router.get(['/', '/list'], async (req, res) => {
         const sql = `SELECT * FROM address_book ${where} ORDER BY sid DESC LIMIT ${(page - 1) * perPage}, ${perPage}`;
         [rows] = await db.query(sql);
     }
-    res.render('address-book/list', { totalRows, totalPages, perPage, page, rows });
+    res.render('address-book/list', { totalRows, totalPages, perPage, page, rows,search,query: req.query });
     //res.json({totalRows,totalPages,perPage,page,rows});
     //查總筆數
+    //加入search,query: req.query查看搜尋結果
 })
 module.exports = router;

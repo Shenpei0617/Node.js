@@ -5,7 +5,13 @@ const db = require(__dirname + '/../modules/db_connect2');
 const upload = require(__dirname + '/../modules/upload-img');
 
 router.use((req, res, next) => {
-    next();
+    if (req.session.admin && req.session.admin.account) {
+        next();
+    } else {
+        res.status(403).send('沒有權限掰掰')
+        //沒有權限通常用403
+    }
+
 })
 async function getListData(req) {
     const perPage = 30;

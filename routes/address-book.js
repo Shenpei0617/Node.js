@@ -50,7 +50,7 @@ async function getListData(req) {
 
 // 1018新增資料
 router.get('/add', async (req, res) => {
-   //給網站名稱
+    //給網站名稱
     res.locals.title = '新增資料 | ' + res.locals.title;
     res.render('address-book/add');
 });
@@ -71,23 +71,50 @@ router.post('/add', upload.none(), async (req, res) => {
         req.body.birthday || null,
         req.body.address,
     ]);
-    if (result, affectedRows) output.success = true;
+    if (result.affectedRows) output.success = true;
     res.json(output);
 });
 
 //1018修改資料
-router.get('/edit/:sid',async(req,res)=>{
+router.get('/edit/:sid', async (req, res) => {
     const sql = " SELECT * FROM address_book WHERE sid=?";
-    const[rows] = await db.query(sql, [req.params.sid]);
-    if(!rows || !rows.length){
+    const [rows] = await db.query(sql, [req.params.sid]);
+    if (!rows || !rows.length) {
         return res.redirect(req.baseUrl); // 跳轉到列表頁
     }
-    res.json(rows[0]);
-    //res.render('address-book/edit')
+    //res.json(rows[0]);
+    res.render('address-book/edit', rows[0]);
 });
-router.put('/edit/:sid', async (req, res)=>{
-
+router.put('/edit/:sid', async (req, res) => {
+    //res.json(req.body);
     // res.render('address-book/edit')
+    const output = {
+        success: false,
+        code: 0,
+        error: {},
+        postData: req.body,//除錯
+    }
+    const sql = "UPDATE `address_book` SET `name`=?,`email`=?,`mobile`=?,`birthday`=?,`address`=? WHERE `sid`=?";
+    const [result] = await db.query(sql, [
+        req.body.name,
+        req.body.email,
+        req.body.mobile,
+        req.body.birthday || null,
+        req.body.address,
+        req.params.sid
+    ]);
+    // console.log(result);
+    // if(result.affectedRows) output.success = true;
+    if (result.changedRows) output.success = true;
+    res.json(output);
+
+});
+//刪除資料
+router.delete('/del/:sid', async (req, res) => {
+    const sql = " DELETE FROM address_book WHERE sid=?";
+    const [result] = await db.query(sql, [req.params.sid]);
+
+    res.json({ success: !!result.affectedRows, result });
 });
 
 // --------------

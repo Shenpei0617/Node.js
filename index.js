@@ -26,7 +26,18 @@ const fs = require('fs').promises;
 //uploads-img引入
 const uploads = require(__dirname + '/modules/upload-img');
 
-app.use(cors());
+
+// 1018使用cors
+const corsOptions = {
+    credentials:true,
+    origin:function(origin,callback){
+        console.log({origin});
+        callback(null,true);
+    }
+}
+
+app.use(cors(corsOptions));
+// ---------
 
 app.use(express.static(__dirname + '/public'));
 app.use(express.static('node_modules/bootstrap/dist'));
@@ -52,6 +63,7 @@ app.use((req, res, next) => {
     //自己定義template helper functions
     res.locals.toDateString = (d) => moment(d).format('YYYY-MM-DD');
     res.locals.toDatetimeString = (d) => moment(d).format('YYYY-MM-DD HH:mm:ss');
+    res.locals.title='1018自己定義網站名'
     next();
 })
 

@@ -8,6 +8,7 @@ const MysqlStore = require('express-mysql-session')(session);
 const db = require(__dirname + '/modules/db_connect2');
 const sessionStore = new MysqlStore({}, db);
 const cors = require('cors');
+const axios = require('axios');
 
 //npm i express 安裝express
 //引入express
@@ -162,6 +163,12 @@ app.get('/logout', (req, res) => {
     //delete為JS的語法
     res.redirect('/');
 });
+
+//axios連到外部網站
+app.get('/yahoo',async(req,res)=>{
+    const response = await axios.get('https://tw.yahoo.com/');
+    res.send(response.data);
+})
 //----------------------------
 
 //設定路由

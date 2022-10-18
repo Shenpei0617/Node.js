@@ -32,6 +32,8 @@
                                         rows="3"></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-primary">新增</button>
+                                <input type="hidden" name="test" value="123">
+                                <input type="hidden" name="test" value="456">
                             </form>
                         </div>
                     </div>
@@ -87,19 +89,24 @@
                   }
   
                   */
-              
-                 // 用multipart上傳，在路由要設定upload.none()
-                 function checkForm(evt) {
-                     evt.preventDefault();
-                     const fd = new FormData(document.form1);
-                     fetch('', {
-                         method: 'POST',
-                         body: fd
-                     }).then(r => r.json())
-                         .then(result => {
-                             console.log(result);
-                         })
-                 }
-                 
+
+                // 用multipart上傳，在路由要設定upload.none()
+                function checkForm(evt) {
+                    evt.preventDefault();
+                    const fd = new FormData(document.form1);
+                    fetch('', {
+                        method: 'POST',
+                        body: fd
+                    }).then(r => r.json())
+                        .then(result => {
+                            console.log(result);
+                            if (result.success) {
+                                location.href = './';
+                            } else {
+                                alert('無法新增');
+                            }
+                        })
+                }
+
             </script>
             <%- include('./../parts/html-foot') %>

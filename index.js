@@ -29,10 +29,10 @@ const uploads = require(__dirname + '/modules/upload-img');
 
 // 1018使用cors
 const corsOptions = {
-    credentials:true,
-    origin:function(origin,callback){
-        console.log({origin});
-        callback(null,true);
+    credentials: true,
+    origin: function (origin, callback) {
+        console.log({ origin });
+        callback(null, true);
     }
 }
 
@@ -63,7 +63,8 @@ app.use((req, res, next) => {
     //自己定義template helper functions
     res.locals.toDateString = (d) => moment(d).format('YYYY-MM-DD');
     res.locals.toDatetimeString = (d) => moment(d).format('YYYY-MM-DD HH:mm:ss');
-    res.locals.title='1018自己定義網站名'
+    res.locals.title = '1018自己定義網站名'
+    res.locals.session = req.session;
     next();
 })
 
@@ -146,8 +147,22 @@ app.get('/try-db-add2', async (req, res) => {
 })
 app.use('/ab', require(__dirname + '/routes/address-book'));
 
-
 // -------------
+//1018假登入登出
+app.get('/fake-login', (req, res) => {
+    req.session.admin = {
+        id: 07,
+        account: 'chacha',
+        nickname: '恰恰'
+    };
+    res.redirect('/');
+});
+app.get('/logout', (req, res) => {
+    delete req.session.admin;
+    //delete為JS的語法
+    res.redirect('/');
+});
+//----------------------------
 
 //設定路由
 //注意路由寫的順序，express的路由不會檢查有沒有重複，所以設在前面的會先讀取執行

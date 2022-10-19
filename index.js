@@ -171,6 +171,53 @@ app.get('/yahoo',async(req,res)=>{
 })
 //----------------------------
 
+// 1019抓同個分類的資料
+app.get('/cate',async(req,res)=>{
+    const [rows] = await db.query ("SELECT * FROM categories ORDER BY sid ")
+    const first = [];
+    for(let i of rows){
+        if(i.parent_sid===0){
+            first.push(i);
+        }
+    }
+    for(let f of first){
+        for(let i of rows){
+            if(f.sid===i.parent_sid){
+                f.childern ||=[];
+                f.childern.push(i);
+            }
+        }
+    }
+    res.send(rows);
+})
+//方法2先編輯字典
+app.get('/cate2',async(req,res)=>{
+    const [rows] = await db.query ("SELECT * FROM categories ORDER BY sid ")
+    const dict = {};
+    for(let i of rows){
+        dict[i.sid]=i;
+    }
+
+    for(let i of rows){
+        
+            if(i.parent_sid!=0){
+                const p = dict[i.parent_sid];
+                p.childern ||=[];
+                p.childern.push(i);
+            }
+        }
+
+        const first =[];
+        for(let i of rows){
+            if(i.parent_sid===0){
+                first.push(i);
+            }
+        }
+   
+    res.send(first);
+})
+// -------------
+
 //設定路由
 //注意路由寫的順序，express的路由不會檢查有沒有重複，所以設在前面的會先讀取執行
 app.get('/', function (req, res) {
